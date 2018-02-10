@@ -1,0 +1,3 @@
+PROJECT (MMD)
+SET(SRC_LIST parser.cpp)
+ADD_EXECUTABLE(parser ${SRC_LIST})
