@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <string>
-#include "model_parser.h"
+
+#include <mmd/parser.h>
 
 using namespace std;
 

@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
 
 PROJECT(MMD_LENS)
+INCLUDE_DIRECTORIES(include)
 ADD_SUBDIRECTORY(src bin)
