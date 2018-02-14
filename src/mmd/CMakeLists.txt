@@ -1,3 +1,2 @@
-PROJECT (MMD)
-SET(SRC_LIST parser.cpp)
-ADD_EXECUTABLE(parser ${SRC_LIST})
+SET(SRC_LIST parser.cpp test.cpp)
+ADD_EXECUTABLE(mmd_test ${SRC_LIST})

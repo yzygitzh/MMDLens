@@ -1,6 +1,9 @@
 #include <cstdio>
+#include <string>
+#include "model_parser.h"
 
-int main() {
-    printf("Hello World\n");
-    return 0;
+using namespace std;
+
+PMXModel::PMXModel(string fileName): fileName(move(fileName)) {
+    printf("MMD file: %s\n", this->fileName.c_str());
 }
