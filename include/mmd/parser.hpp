@@ -45,6 +45,10 @@ struct PMXVertex {
     float edgeSizeX;
 };
 
+struct PMXSurface {
+    size_t vertexIdx[3];
+};
+
 class PMXModel {
     static const int MAGIC = 0x20584d50; // "PMX "
     static const int TEXT_ENCODING_UTF16 = 0;
@@ -78,14 +82,21 @@ class PMXModel {
     std::string modelCommentEn;
 
     // vertex
-    unsigned vertexNum;
+    int vertexNum;
+    size_t vertexRegionSize;
     std::vector<PMXVertex> vertices;
+
+    // surface
+    int surfaceNum;
+    size_t surfaceRegionSize;
+    std::vector<PMXSurface> surfaces;
 
     void readFile();
     void parseFile();
     size_t readIdx(char *buf, size_t idxSize);
     PMXTextBuf readTextBuf(char *buf);
     void readVertices(char *buf);
+    void readSurfaces(char *buf);
 
 #ifdef MODEL_PARSER_DEBUG
     void printVertex(PMXVertex vertex);

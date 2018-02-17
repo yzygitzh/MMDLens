@@ -78,7 +78,7 @@ size_t PMXModel::readIdx(char *buf, size_t idxSize) {
 
 void PMXModel::readVertices(char *buf) {
     size_t bufIdx = 0;
-    vertexNum = *(unsigned *)(buf);
+    vertexNum = *(int *)(buf);
     bufIdx += sizeof(vertexNum);
     vertices.resize(vertexNum);
     for (auto i = 0; i < vertexNum; i++) {
@@ -145,6 +145,24 @@ void PMXModel::readVertices(char *buf) {
 
         vertices[i] = currVertex;
     }
+    vertexRegionSize = bufIdx;
+}
+
+void PMXModel::readSurfaces(char *buf) {
+    size_t bufIdx = 0;
+    surfaceNum = *(int *)(buf) / 3;
+    std::cout << surfaceNum << std::endl;
+    bufIdx += sizeof(surfaceNum);
+    surfaces.resize(surfaceNum);
+    for (auto i = 0; i < surfaceNum; i++) {
+        PMXSurface currSurface;
+        for (auto j = 0; j < 3; j++) {
+            currSurface.vertexIdx[j] = readIdx(buf + bufIdx, globals.vertexIdxSize);
+            bufIdx += globals.vertexIdxSize;
+        }
+        surfaces[i] = currSurface;
+    }
+    surfaceRegionSize = bufIdx;
 }
 
 void PMXModel::parseFile() {
@@ -201,10 +219,13 @@ void PMXModel::parseFile() {
      * PMX vertices
      */
     readVertices(memBlock.get() + bufIdx);
+    bufIdx += vertexRegionSize;
 
     /*
      * PMX surfaces
      */
+    readSurfaces(memBlock.get() + bufIdx);
+    bufIdx += surfaceRegionSize;
 
 #ifdef MODEL_PARSER_DEBUG
         std::cout << "PMX version: " << ver << std::endl;
@@ -220,10 +241,13 @@ void PMXModel::parseFile() {
         std::cout << "PMX modelComment:" << std::endl << modelComment << std::endl;
         std::cout << "PMX modelCommentEn:" << std::endl << modelCommentEn << std::endl;
         std::cout << "PMX vertexNum: " << vertexNum << std::endl;
-        std::cout << "PMX vertex #1: " << std::endl;
+        std::cout << "PMX vertexRegionSize: " << vertexRegionSize << std::endl;
+        /*std::cout << "PMX vertex #1: " << std::endl;
         printVertex(vertices[0]);
         std::cout << "PMX vertex #2: " << std::endl;
-        printVertex(vertices[1]);
+        printVertex(vertices[1]);*/
+        std::cout << "PMX surfaceNum: " << surfaceNum << std::endl;
+        std::cout << "PMX surfaceRegionSize: " << surfaceRegionSize << std::endl;
 #endif
 }
 
