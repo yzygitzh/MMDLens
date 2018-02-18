@@ -1,35 +1,7 @@
-/*
- * 3-D gear wheels.  This program is in the public domain.
- *
- * Command line options:
- *    -info      print GL implementation information
- *    -exit      automatically exit after 30 seconds
- *
- *
- * Brian Paul
- *
- *
- * Marcus Geelnard:
- *   - Conversion to GLFW
- *   - Time based rendering (frame rate independent)
- *   - Slightly modified camera that should work better for stereo viewing
- *
- *
- * Camilla Berglund:
- *   - Removed FPS counter (this is not a benchmark)
- *   - Added a few comments
- *   - Enabled vsync
- */
-
-#if defined(_MSC_VER)
- // Make MS math.h define M_PI
- #define _USE_MATH_DEFINES
-#endif
-
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -298,16 +270,15 @@ static void init(void)
 }
 
 
-/* program entry */
-int main(int argc, char *argv[])
+int main()
 {
     GLFWwindow* window;
     int width, height;
 
-    if( !glfwInit() )
+    if(!glfwInit())
     {
-        fprintf( stderr, "Failed to initialize GLFW\n" );
-        exit( EXIT_FAILURE );
+        fprintf(stderr, "Failed to initialize GLFW\n");
+        exit(EXIT_FAILURE);
     }
 
     glfwWindowHint(GLFW_DEPTH_BITS, 16);
@@ -347,6 +318,7 @@ int main(int argc, char *argv[])
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+    glfwDestroyWindow(window);
 
     // Terminate GLFW
     glfwTerminate();

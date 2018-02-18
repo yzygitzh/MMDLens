@@ -1,5 +1,5 @@
-SET(PARSER_TEST_SRC_LIST parser.cpp test.cpp)
-SET(RENDER_TEST_SRC_LIST render.cpp glad.cpp)
+SET(PARSER_TEST_SRC_LIST parser.cpp parser_test.cpp)
+SET(RENDER_TEST_SRC_LIST render_test.cpp glad.cpp)
 
 SET(BOOST_LINK_OPT "-lboost_filesystem -lboost_system -lboost_program_options")
 SET(CMAKE_EXE_LINKER_FLAGS "${BOOST_LINK_OPT}")
