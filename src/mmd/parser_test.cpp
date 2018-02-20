@@ -1,11 +1,9 @@
 #include <iostream>
 #include <string>
-#include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
 #include <mmd/parser.hpp>
 
-namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
 void testParser(std::string modelPath) {

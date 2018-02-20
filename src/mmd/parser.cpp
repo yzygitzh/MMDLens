@@ -1,17 +1,18 @@
 #include <codecvt>
 #include <iostream>
 #include <locale>
-#include <memory>
-#include <string>
+#include <boost/filesystem.hpp>
 
 #include <mmd/parser.hpp>
 
+namespace fsys = boost::filesystem;
+
 void PMXModel::readFile() {
-    std::fstream PMXFile(fileName, std::ios::in | std::ios::binary | std::ios::ate);
+    std::fstream PMXFile(filePath, std::ios::in | std::ios::binary | std::ios::ate);
     if (PMXFile.is_open()) {
         fileSize = PMXFile.tellg();
 #ifdef MODEL_PARSER_DEBUG
-        std::cout << fileName << std::endl;
+        std::cout << filePath << std::endl;
         std::cout << "PMX file size: " << fileSize << std::endl;
 #endif
         memBlock = std::unique_ptr<char>(new char[fileSize]);
@@ -151,7 +152,6 @@ void PMXModel::readVertices(char *buf) {
 void PMXModel::readSurfaces(char *buf) {
     size_t bufIdx = 0;
     surfaceNum = *(int *)(buf) / 3;
-    std::cout << surfaceNum << std::endl;
     bufIdx += sizeof(surfaceNum);
     surfaces.resize(surfaceNum);
     for (auto i = 0; i < surfaceNum; i++) {
@@ -163,6 +163,25 @@ void PMXModel::readSurfaces(char *buf) {
         surfaces[i] = currSurface;
     }
     surfaceRegionSize = bufIdx;
+}
+
+void PMXModel::readTextures(char *buf) {
+    size_t bufIdx = 0;
+    textureNum = *(int *)(buf);
+    bufIdx += sizeof(textureNum);
+    textures.resize(textureNum);
+    for (auto i = 0; i < textureNum; i++) {
+        PMXTexture currTexture;
+        PMXTextBuf name = readTextBuf(buf + bufIdx);
+        bufIdx += sizeof(name.originTextLen) + name.originTextLen;
+        textures[i].name = name;
+        // read in image file, assume relative path
+        std::string path = fsys::path(filePath).remove_filename().append(name.text).string();
+        std::cout << path << std::endl;
+        textures[i].image.load(path.c_str());
+        textures[i].image.convertToRGBAF();
+    }
+    textureRegionSize = bufIdx;
 }
 
 void PMXModel::parseFile() {
@@ -227,6 +246,12 @@ void PMXModel::parseFile() {
     readSurfaces(memBlock.get() + bufIdx);
     bufIdx += surfaceRegionSize;
 
+    /*
+     * PMX textures
+     */
+    readTextures(memBlock.get() + bufIdx);
+    bufIdx += textureRegionSize;
+
 #ifdef MODEL_PARSER_DEBUG
         std::cout << "PMX version: " << ver << std::endl;
         std::cout << "PMX encoding: " << (unsigned)globals.encoding << std::endl;
@@ -248,12 +273,24 @@ void PMXModel::parseFile() {
         printVertex(vertices[1]);*/
         std::cout << "PMX surfaceNum: " << surfaceNum << std::endl;
         std::cout << "PMX surfaceRegionSize: " << surfaceRegionSize << std::endl;
+        std::cout << "PMX textureNum: " << textureNum << std::endl;
+        std::cout << "PMX textureRegionSize: " << textureRegionSize << std::endl;
+        for (auto i = 0; i < textureNum; i++)
+            std::cout << textures[i].name.text << std::endl;
 #endif
 }
 
-PMXModel::PMXModel(std::string fileName_): fileName(fileName_) {
+PMXModel::PMXModel(std::string filePath_): filePath(filePath_) {
     // read PMX file content into memory
     readFile();
     // load PMX contents into class fields
     parseFile();
+}
+
+std::vector<PMXVertex>& PMXModel::getVertices() {
+    return vertices;
+}
+
+std::vector<PMXSurface>& PMXModel::getSurfaces() {
+    return surfaces;
 }

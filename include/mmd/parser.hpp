@@ -4,7 +4,9 @@
 #include <string>
 #include <exception>
 #include <fstream>
+#include <memory>
 #include <vector>
+#include <FreeImagePlus.h>
 
 struct PMXTextBuf {
     std::string text;
@@ -49,6 +51,11 @@ struct PMXSurface {
     size_t vertexIdx[3];
 };
 
+struct PMXTexture {
+    PMXTextBuf name;
+    fipImage image;
+};
+
 class PMXModel {
     static const int MAGIC = 0x20584d50; // "PMX "
     static const int TEXT_ENCODING_UTF16 = 0;
@@ -58,7 +65,7 @@ class PMXModel {
     static const int DEFORM_METHOD_BDEF4 = 2;
     static const int DEFORM_METHOD_SDEF = 3;
 
-    std::string fileName;
+    std::string filePath;
     std::unique_ptr<char> memBlock;
     size_t fileSize;
 
@@ -91,19 +98,27 @@ class PMXModel {
     size_t surfaceRegionSize;
     std::vector<PMXSurface> surfaces;
 
+    // texture
+    int textureNum;
+    size_t textureRegionSize;
+    std::vector<PMXTexture> textures;
+
     void readFile();
     void parseFile();
     size_t readIdx(char *buf, size_t idxSize);
     PMXTextBuf readTextBuf(char *buf);
     void readVertices(char *buf);
     void readSurfaces(char *buf);
+    void readTextures(char *buf);
 
 #ifdef MODEL_PARSER_DEBUG
     void printVertex(PMXVertex vertex);
 #endif
 
 public:
-    PMXModel(std::string fileName);
+    PMXModel(std::string filePath);
+    std::vector<PMXVertex>& getVertices();
+    std::vector<PMXSurface>& getSurfaces();
 };
 
 #endif
