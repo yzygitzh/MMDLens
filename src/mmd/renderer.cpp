@@ -66,7 +66,7 @@ PMXRenderer::PMXRenderer(PMXModel &model_, char *progPath_): model(model_), prog
     loadShaders();
     // prepare vertex attribute
     mvp_location = glGetUniformLocation(program, "MVP");
-    vpos_location = glGetAttribLocation(program, "vPos");
+    vpos_location = glGetAttribLocation(program, "pos");
     glEnableVertexAttribArray(vpos_location);
     glVertexAttribPointer(vpos_location, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 }
@@ -80,10 +80,10 @@ void PMXRenderer::render(GLFWwindow *window) {
     glViewport(0, 0, width, height);
     glClear(GL_COLOR_BUFFER_BIT);
     mat4x4_identity(m);
-    mat4x4_rotate_X(m, m, (float) glfwGetTime());
+    //mat4x4_rotate_X(m, m, (float) glfwGetTime());
     mat4x4_rotate_Y(m, m, (float) glfwGetTime());
-    mat4x4_rotate_Z(m, m, (float) glfwGetTime());
-    mat4x4_ortho(p, -ratio * 30, ratio * 30, -30.f, 30.f, 30.f, -30.f);
+    //mat4x4_rotate_Z(m, m, (float) glfwGetTime());
+    mat4x4_ortho(p, -ratio * 20, ratio * 20, -10.f, 30.f, 20.f, -20.f);
     mat4x4_mul(mvp, p, m);
     glUseProgram(program);
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
