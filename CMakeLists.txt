@@ -2,4 +2,6 @@ cmake_minimum_required(VERSION 3.9)
 
 PROJECT(MMD_LENS)
 INCLUDE_DIRECTORIES(include)
+INCLUDE_DIRECTORIES(deps/linmath)
+ADD_SUBDIRECTORY(deps)
 ADD_SUBDIRECTORY(src bin)
