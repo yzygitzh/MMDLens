@@ -21,6 +21,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int show(std::string modelPath, char *progPath)
 {
+    PMXModel testModel = PMXModel(modelPath);
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -39,7 +40,6 @@ int show(std::string modelPath, char *progPath)
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     glfwSwapInterval(1);
 
-    PMXModel testModel = PMXModel(modelPath);
     PMXRenderer renderer(testModel, progPath);
 
     while (!glfwWindowShouldClose(window))

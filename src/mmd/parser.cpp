@@ -171,17 +171,76 @@ void PMXModel::readTextures(char *buf) {
     bufIdx += sizeof(textureNum);
     textures.resize(textureNum);
     for (auto i = 0; i < textureNum; i++) {
-        PMXTexture currTexture;
-        PMXTextBuf name = readTextBuf(buf + bufIdx);
-        bufIdx += sizeof(name.originTextLen) + name.originTextLen;
-        textures[i].name = name;
+        textures[i].name = readTextBuf(buf + bufIdx);
+        bufIdx += sizeof(textures[i].name.originTextLen) + textures[i].name.originTextLen;
         // read in image file, assume relative path
-        std::string path = fsys::path(filePath).remove_filename().append(name.text).string();
+        std::string path = fsys::path(filePath).remove_filename().append(textures[i].name.text).string();
         std::cout << path << std::endl;
         textures[i].image.load(path.c_str());
         textures[i].image.convertToRGBAF();
     }
     textureRegionSize = bufIdx;
+}
+
+void PMXModel::readMaterials(char *buf) {
+    size_t bufIdx = 0;
+    materialNum = *(int *)(buf);
+    bufIdx += sizeof(materialNum);
+    materials.resize(materialNum);
+    for (auto i = 0; i < materialNum; i++) {
+        PMXMaterial currMaterial;
+        // material name
+        currMaterial.name = readTextBuf(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.name.originTextLen) + currMaterial.name.originTextLen;
+        currMaterial.nameEn = readTextBuf(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.nameEn.originTextLen) + currMaterial.nameEn.originTextLen;
+
+        currMaterial.diffuse = *(PMXFloat4RGBA *)(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.diffuse);
+        currMaterial.specular = *(PMXFloat3RGB *)(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.specular);
+        currMaterial.specularX = *(float *)(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.specularX);
+        currMaterial.ambient = *(PMXFloat3RGB *)(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.ambient);
+
+        currMaterial.renderFlag = *(unsigned char *)(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.renderFlag);
+
+        currMaterial.edgeColor = *(PMXFloat4RGBA *)(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.edgeColor);
+        currMaterial.edgeSize = *(float *)(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.edgeSize);
+
+        currMaterial.normalTextureIdx = readIdx(buf + bufIdx, globals.textureIdxSize);
+        bufIdx += sizeof(globals.textureIdxSize);
+        currMaterial.sphereTextureIdx = readIdx(buf + bufIdx, globals.textureIdxSize);
+        bufIdx += sizeof(globals.textureIdxSize);
+
+        currMaterial.sphereMode = *(unsigned char *)(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.sphereMode);
+
+        currMaterial.toonFlag = *(unsigned char *)(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.toonFlag);
+        if (currMaterial.toonFlag == TOON_NON_SHARED_FLAG) {
+            currMaterial.toonTextureIdx = readIdx(buf + bufIdx, globals.textureIdxSize);
+            bufIdx += sizeof(globals.textureIdxSize);
+        } else if (currMaterial.toonFlag == TOON_SHARED_FLAG) {
+            currMaterial.sharedToonTextureIdx = *(unsigned char *)(buf + bufIdx);
+            bufIdx += sizeof(currMaterial.sharedToonTextureIdx);
+        } else {
+            throw std::runtime_error("Invalid toon flag");
+        }
+
+        currMaterial.memo = readTextBuf(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.memo.originTextLen) + currMaterial.memo.originTextLen;
+
+        currMaterial.surfaceNum = *(int *)(buf + bufIdx);
+        bufIdx += sizeof(currMaterial.surfaceNum);
+
+        materials[i] = currMaterial;
+    }
+    materialRegionSize = bufIdx;
 }
 
 void PMXModel::parseFile() {
@@ -251,6 +310,12 @@ void PMXModel::parseFile() {
      */
     readTextures(memBlock.get() + bufIdx);
     bufIdx += textureRegionSize;
+
+    /*
+     * PMX materials
+     */
+    readMaterials(memBlock.get() + bufIdx);
+    bufIdx += materialRegionSize;
 
 #ifdef MODEL_PARSER_DEBUG
         std::cout << "PMX version: " << ver << std::endl;

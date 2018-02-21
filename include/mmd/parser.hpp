@@ -56,14 +56,47 @@ struct PMXTexture {
     fipImage image;
 };
 
+struct PMXMaterial {
+    PMXTextBuf name;
+    PMXTextBuf nameEn;
+
+    PMXFloat4RGBA diffuse;
+    PMXFloat3RGB specular;
+    float specularX;
+    PMXFloat3RGB ambient;
+
+    unsigned char renderFlag;
+
+    PMXFloat4RGBA edgeColor;
+    float edgeSize;
+
+    size_t normalTextureIdx;
+    size_t sphereTextureIdx;
+
+    unsigned char sphereMode;
+
+    unsigned char toonFlag;
+    size_t toonTextureIdx;
+    unsigned char sharedToonTextureIdx;
+
+    PMXTextBuf memo;
+
+    int surfaceNum;
+};
+
 class PMXModel {
     static const int MAGIC = 0x20584d50; // "PMX "
+
     static const int TEXT_ENCODING_UTF16 = 0;
     static const int TEXT_ENCODING_UTF8 = 1;
+
     static const int DEFORM_METHOD_BDEF1 = 0;
     static const int DEFORM_METHOD_BDEF2 = 1;
     static const int DEFORM_METHOD_BDEF4 = 2;
     static const int DEFORM_METHOD_SDEF = 3;
+
+    static const int TOON_NON_SHARED_FLAG = 0;
+    static const int TOON_SHARED_FLAG = 1;
 
     std::string filePath;
     std::unique_ptr<char> memBlock;
@@ -103,6 +136,11 @@ class PMXModel {
     size_t textureRegionSize;
     std::vector<PMXTexture> textures;
 
+    // material
+    int materialNum;
+    size_t materialRegionSize;
+    std::vector<PMXMaterial> materials;
+
     void readFile();
     void parseFile();
     size_t readIdx(char *buf, size_t idxSize);
@@ -110,6 +148,7 @@ class PMXModel {
     void readVertices(char *buf);
     void readSurfaces(char *buf);
     void readTextures(char *buf);
+    void readMaterials(char *buf);
 
 #ifdef MODEL_PARSER_DEBUG
     void printVertex(PMXVertex vertex);
