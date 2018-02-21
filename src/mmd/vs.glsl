@@ -8,10 +8,10 @@ layout (location = 2) in vec2 UV;
 
 out VS_OUT
 {
-    vec3 color;
+    vec2 UV;
 } vs_out;
 
 void main() {
     gl_Position = MVP * vec4(pos, 1.0);
-    vs_out.color = vec3(1.0, 1.0, 1.0);
+    vs_out.UV = UV;
 }

@@ -6,21 +6,28 @@
 
 #include <mmd/parser.hpp>
 
+struct PMXRendererVertex {
+    PMXFloat3XYZ pos;
+    PMXFloat3XYZ norm;
+    PMXFloat2UV UV;
+};
+
 class PMXRenderer {
     char *progPath;
 
     // model data
     PMXModel &model;
     size_t renderVertexNum;
-    std::unique_ptr<PMXFloat3XYZ> renderVertices;
+    std::unique_ptr<PMXRendererVertex> renderVertices;
 
     // OpenGL data
     const char *vsName = "vs.glsl", *fsName = "fs.glsl";
     std::string vsPath, fsPath;
-    GLuint vertexBuffer, vs, fs, program;
+    GLuint vao, vertexBuffer, vs, fs, program;
+    std::unique_ptr<GLuint> textures;
 
     // variables in shaders
-    GLint mvp_location, vpos_location;
+    GLint mvpLocation, posLocation, normLocation, UVLocation;
 
     void loadShaders();
 public:

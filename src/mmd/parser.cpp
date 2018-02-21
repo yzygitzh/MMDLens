@@ -175,8 +175,8 @@ void PMXModel::readTextures(char *buf) {
         bufIdx += sizeof(textures[i].name.originTextLen) + textures[i].name.originTextLen;
         // read in image file, assume relative path
         std::string path = fsys::path(filePath).remove_filename().append(textures[i].name.text).string();
-        std::cout << path << std::endl;
         textures[i].image.load(path.c_str());
+        textures[i].image.flipVertical(); // OpenGL UV origin is the bottom left
         textures[i].image.convertToRGBAF();
     }
     textureRegionSize = bufIdx;
@@ -212,7 +212,7 @@ void PMXModel::readMaterials(char *buf) {
         currMaterial.edgeSize = *(float *)(buf + bufIdx);
         bufIdx += sizeof(currMaterial.edgeSize);
 
-        currMaterial.normalTextureIdx = readIdx(buf + bufIdx, globals.textureIdxSize);
+        currMaterial.textureIdx = readIdx(buf + bufIdx, globals.textureIdxSize);
         bufIdx += sizeof(globals.textureIdxSize);
         currMaterial.sphereTextureIdx = readIdx(buf + bufIdx, globals.textureIdxSize);
         bufIdx += sizeof(globals.textureIdxSize);
@@ -235,7 +235,7 @@ void PMXModel::readMaterials(char *buf) {
         currMaterial.memo = readTextBuf(buf + bufIdx);
         bufIdx += sizeof(currMaterial.memo.originTextLen) + currMaterial.memo.originTextLen;
 
-        currMaterial.surfaceNum = *(int *)(buf + bufIdx);
+        currMaterial.surfaceNum = *(int *)(buf + bufIdx) / 3;
         bufIdx += sizeof(currMaterial.surfaceNum);
 
         materials[i] = currMaterial;
@@ -358,4 +358,12 @@ std::vector<PMXVertex>& PMXModel::getVertices() {
 
 std::vector<PMXSurface>& PMXModel::getSurfaces() {
     return surfaces;
+}
+
+std::vector<PMXTexture>& PMXModel::getTextures() {
+    return textures;
+}
+
+std::vector<PMXMaterial>& PMXModel::getMaterials() {
+    return materials;
 }

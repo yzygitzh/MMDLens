@@ -70,7 +70,7 @@ struct PMXMaterial {
     PMXFloat4RGBA edgeColor;
     float edgeSize;
 
-    size_t normalTextureIdx;
+    size_t textureIdx;
     size_t sphereTextureIdx;
 
     unsigned char sphereMode;
@@ -158,6 +158,8 @@ public:
     PMXModel(std::string filePath);
     std::vector<PMXVertex>& getVertices();
     std::vector<PMXSurface>& getSurfaces();
+    std::vector<PMXTexture>& getTextures();
+    std::vector<PMXMaterial>& getMaterials();
 };
 
 #endif
