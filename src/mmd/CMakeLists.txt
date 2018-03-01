@@ -1,5 +1,5 @@
 SET(PARSER_TEST_SRC_LIST parser.cpp parser_test.cpp)
-SET(RENDER_TEST_SRC_LIST render_test.cpp parser.cpp renderer.cpp)
+SET(RENDER_TEST_SRC_LIST render_test.cpp parser.cpp renderer.cpp controller.cpp)
 
 SET(BOOST_LINK_OPT "-lboost_filesystem -lboost_system -lboost_program_options")
 SET(FIP_LINK_OPT "-lfreeimageplus")

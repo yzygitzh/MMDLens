@@ -71,7 +71,9 @@ PMXRenderer::PMXRenderer(PMXModel &model_, char *progPath_): model(model_), prog
     loadShaders();
 
     // prepare vertex uniforms
-    mvpLocation = glGetUniformLocation(program, "MVP");
+    transLocation = glGetUniformLocation(program, "trans_matrix");
+    mvLocation = glGetUniformLocation(program, "mv_matrix");
+    projLocation = glGetUniformLocation(program, "proj_matrix");
 
     // prepare vertex attributes
     posLocation = glGetAttribLocation(program, "pos");
@@ -112,12 +114,20 @@ void PMXRenderer::render(GLFWwindow *window) {
     ratio = width / (float) height;
     glViewport(0, 0, width, height);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    /*
     mat4x4_identity(m);
+    mat4x4_identity(projMatrix);
     mat4x4_rotate_Y(m, m, (float) glfwGetTime());
     mat4x4_ortho(p, -ratio *15, ratio * 15, -5.f, 25.f, 15.f, -15.f);
-    mat4x4_mul(mvp, p, m);
+    mat4x4_mul(mvMatrix, p, m);
+    */
+
     glUseProgram(program);
-    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, (const GLfloat*) mvp);
+
+    glUniformMatrix4fv(transLocation, 1, GL_FALSE, (const GLfloat*) transMatrix);
+    glUniformMatrix4fv(mvLocation, 1, GL_FALSE, (const GLfloat*) mvMatrix);
+    glUniformMatrix4fv(projLocation, 1, GL_FALSE, (const GLfloat*) projMatrix);
 
     glClearDepth(1);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -136,4 +146,16 @@ void PMXRenderer::render(GLFWwindow *window) {
 
     glfwSwapBuffers(window);
     glfwPollEvents();
+}
+
+void PMXRenderer::setTrans(mat4x4 newTrans) {
+    mat4x4_dup(transMatrix, newTrans);
+}
+
+void PMXRenderer::setMV(mat4x4 newMV) {
+    mat4x4_dup(mvMatrix, newMV);
+}
+
+void PMXRenderer::setProj(mat4x4 newProj) {
+    mat4x4_dup(projMatrix, newProj);
 }

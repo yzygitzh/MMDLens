@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <linmath.h>
 
 #include <mmd/parser.hpp>
 
@@ -27,12 +28,17 @@ class PMXRenderer {
     std::unique_ptr<GLuint> textures;
 
     // variables in shaders
-    GLint mvpLocation, posLocation, normLocation, UVLocation;
+    mat4x4 transMatrix, mvMatrix, projMatrix;
+    GLint transLocation, mvLocation, projLocation;
+    GLint posLocation, normLocation, UVLocation;
 
     void loadShaders();
 public:
     PMXRenderer(PMXModel &model_, char *progPath_);
     void render(GLFWwindow *window);
+    void setTrans(mat4x4 newTrans);
+    void setMV(mat4x4 newMV);
+    void setProj(mat4x4 newProj);
 };
 
 #endif

@@ -6,6 +6,7 @@
 
 #include <mmd/parser.hpp>
 #include <mmd/renderer.hpp>
+#include <mmd/controller.hpp>
 
 namespace po = boost::program_options;
 
@@ -13,15 +14,10 @@ static void error_callback(int error, const char* description) {
     std::cerr << "Error: " << description << std::endl;
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
 int show(std::string modelPath, char *progPath)
 {
     PMXModel testModel = PMXModel(modelPath);
+
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -29,13 +25,22 @@ int show(std::string modelPath, char *progPath)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    window = glfwCreateWindow(640, 480, "MMD Lens", NULL, NULL);
+    window = glfwCreateWindow(Controller::DEFAULT_WINDOW_WIDTH,
+                              Controller::DEFAULT_WINDOW_HEIGHT,
+                              "MMD Lens", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
-    glfwSetKeyCallback(window, key_callback);
+
+    // setup callbacks
+    glfwSetWindowSizeCallback(window, Controller::windowSizeCallback);
+    glfwSetKeyCallback(window, Controller::keyCallback);
+    glfwSetMouseButtonCallback(window, Controller::mouseButtonCallback);
+    glfwSetScrollCallback(window, Controller::scrollCallback);
+    glfwSetCursorPosCallback(window, Controller::cursorPosCallback);
+
     glfwMakeContextCurrent(window);
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     glfwSwapInterval(1);
@@ -44,6 +49,10 @@ int show(std::string modelPath, char *progPath)
 
     while (!glfwWindowShouldClose(window))
     {
+        Controller::updateCamera();
+        renderer.setTrans(Controller::transMatrix);
+        renderer.setMV(Controller::mvMatrix);
+        renderer.setProj(Controller::projMatrix);
         renderer.render(window);
     }
     glfwDestroyWindow(window);
